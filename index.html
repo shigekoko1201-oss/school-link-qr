@@ -240,7 +240,8 @@
     <div class="field">
       <label for="fName">サイト名<span class="req">必須</span></label>
       <input type="text" id="fName" placeholder="例：NHK for School　わり算">
-      <div class="hint">URL を入れて次の欄に進むと、自動で入ります。あとから書き直せます。</div>
+      <div class="hint">URL を入れて次の欄に進むと、自動で入ります。
+        入らないサイト（NHK for School など）もあるので、そのときは手で入れてください。</div>
     </div>
 
     <div class="field">
@@ -625,8 +626,25 @@
     if (!url || !checkUrl()) return;
     var btn = $("btnFetchTitle");
     btn.disabled = true; btn.textContent = "取得中…";
-    apiPost({ action: "title", url: url }).then(function(res){
+
+    // NHK for School のように、いつまでも応答を返さないサイトがある。
+    // 打ち切らないとボタンが「取得中…」のまま固まるので、必ず時間で諦める。
+    var handled = false;
+    function finish(){
+      if (handled) return true;
+      handled = true;
       btn.disabled = false; btn.textContent = "名前を取得";
+      return false;
+    }
+    setTimeout(function(){
+      if (finish()) return;
+      if (!silent){
+        $("editErr").textContent = "このサイトは名前を返してくれませんでした。手で入れてください。";
+      }
+    }, 12000);
+
+    apiPost({ action: "title", url: url }).then(function(res){
+      if (finish()) return;
       if (res.ok && res.title){
         if (!silent || !$("fName").value.trim()){
           $("fName").value = res.title;
@@ -636,7 +654,7 @@
         $("editErr").textContent = res.error || "このサイトからは名前を取得できませんでした。手で入れてください。";
       }
     }).catch(function(){
-      btn.disabled = false; btn.textContent = "名前を取得";
+      if (finish()) return;
       if (!silent) $("editErr").textContent = "名前を取得できませんでした。手で入れてください。";
     });
   }
