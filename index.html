@@ -240,6 +240,7 @@
     <div class="field">
       <label for="fName">サイト名<span class="req">必須</span></label>
       <input type="text" id="fName" placeholder="例：NHK for School　わり算">
+      <div class="hint">URL を入れて次の欄に進むと、自動で入ります。あとから書き直せます。</div>
     </div>
 
     <div class="field">
@@ -266,7 +267,7 @@
     <div class="field">
       <label for="fPw">合い言葉<span class="req">必須</span></label>
       <input type="password" id="fPw" placeholder="職員共通の合い言葉">
-      <div class="hint">この画面を開いている間は覚えています。</div>
+      <div class="hint">保存のときだけ必要です。このページを開いている間は覚えています。</div>
     </div>
 
     <div class="hint err" id="editErr"></div>
@@ -614,24 +615,29 @@
     });
   }
 
-  function fetchTitle(){
+  /**
+   * URL からサイト名を取り込む。合い言葉は不要（サーバー側は回数制限で守っている）。
+   * silent = true は URL 欄から離れたときの自動取り込み。
+   * 失敗しても黙って諦め、名前が空のときだけ埋める。
+   */
+  function fetchTitle(silent){
     var url = $("fUrl").value.trim();
-    var pw = $("fPw").value;
     if (!url || !checkUrl()) return;
-    if (!pw){ $("editErr").textContent = "名前の取得にも合い言葉が必要です。"; $("fPw").focus(); return; }
     var btn = $("btnFetchTitle");
     btn.disabled = true; btn.textContent = "取得中…";
-    apiPost({ action: "title", pw: pw, url: url }).then(function(res){
+    apiPost({ action: "title", url: url }).then(function(res){
       btn.disabled = false; btn.textContent = "名前を取得";
       if (res.ok && res.title){
-        $("fName").value = res.title;
-        $("editErr").textContent = "";
-      } else {
+        if (!silent || !$("fName").value.trim()){
+          $("fName").value = res.title;
+          if (!silent) $("editErr").textContent = "";
+        }
+      } else if (!silent){
         $("editErr").textContent = res.error || "このサイトからは名前を取得できませんでした。手で入れてください。";
       }
     }).catch(function(){
       btn.disabled = false; btn.textContent = "名前を取得";
-      $("editErr").textContent = "名前を取得できませんでした。手で入れてください。";
+      if (!silent) $("editErr").textContent = "名前を取得できませんでした。手で入れてください。";
     });
   }
 
@@ -673,8 +679,12 @@
     $("btnCancel").addEventListener("click", closeEdit);
     $("btnSave").addEventListener("click", save);
     $("btnDelete").addEventListener("click", removeLink);
-    $("btnFetchTitle").addEventListener("click", fetchTitle);
+    $("btnFetchTitle").addEventListener("click", function(){ fetchTitle(false); });
     $("fUrl").addEventListener("input", checkUrl);
+    // URL を貼って次に進んだら、名前が空なら黙って取りに行く
+    $("fUrl").addEventListener("blur", function(){
+      if (!$("fName").value.trim() && /^https?:\/\//i.test($("fUrl").value.trim())) fetchTitle(true);
+    });
     $("btnAllGrades").addEventListener("click", function(){
       Array.prototype.slice.call($("fGrades").querySelectorAll("input"))
         .forEach(function(cb){ cb.checked = true; });

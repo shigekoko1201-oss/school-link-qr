@@ -145,13 +145,23 @@ function doPost(e) {
       return deleteLink_(req);
     }
 
+    // 名前の取得だけは合い言葉なしで通す。
+    // 返すのはページの <title> だけ（最大120文字）なので悪用の価値が低く、
+    // 保存の前に合い言葉を打たせると入力の順番が逆になって使いにくいため。
+    // 代わりに回数制限で守る。
+    if (req.action === 'title') {
+      if (!checkTitleRate_()) {
+        return json_({ ok: false, error: '名前の取得が続いています。少し待ってから試してください。' });
+      }
+      return fetchTitle_(req);
+    }
+
     if (!checkPassword_('EDIT_PASSWORD', req.pw)) {
       return json_({ ok: false, error: '合い言葉が違います。' });
     }
 
     if (req.action === 'add')    return addLink_(req);
     if (req.action === 'update') return updateLink_(req);
-    if (req.action === 'title')  return fetchTitle_(req);
     return json_({ ok: false, error: '不明な操作です。' });
 
   } catch (err) {
@@ -181,6 +191,14 @@ function checkPassword_(propKey, given) {
     cache.remove('failCount');
   }
   return false;
+}
+
+/** 名前の取得は1時間に 60 回まで。踏み台にされたときの被害を頭打ちにする。 */
+function checkTitleRate_() {
+  var cache = CacheService.getScriptCache();
+  var n = parseInt(cache.get('titleCount') || '0', 10) + 1;
+  cache.put('titleCount', String(n), 3600);
+  return n <= 60;
 }
 
 function validate_(req, subjects) {
