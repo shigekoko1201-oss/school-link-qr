@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学習リンク集</title>
+<style>
+  :root{
+    --bg:#f6f7f9;
+    --card:#ffffff;
+    --text:#1b1f24;
+    --sub:#5a6472;
+    --line:#dfe3e8;
+    --accent:#1565c0;
+    --accent-weak:#e8f0fb;
+    --danger:#c0392b;
+    --warn:#b26a00;
+    --warn-bg:#fff6e5;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+    font-size:18px;
+    line-height:1.6;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:16px 16px 64px;}
+
+  /* ---- header ---- */
+  header{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:10px 0 14px;
+  }
+  h1{font-size:22px;margin:0;letter-spacing:.02em;}
+  .spacer{flex:1;}
+  .btn{
+    font:inherit;cursor:pointer;border:1px solid var(--line);
+    background:var(--card);color:var(--text);
+    border-radius:10px;padding:10px 16px;min-height:46px;
+  }
+  .btn:hover{background:#eef1f5;}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn-primary:hover{background:#0d4d94;}
+  .btn-danger{color:var(--danger);border-color:#e8c4bf;background:#fdf3f2;}
+  .btn-danger:hover{background:#f9e2df;}
+  .btn-sm{padding:6px 12px;min-height:38px;font-size:16px;}
+
+  /* ---- search / grade ---- */
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  #search{
+    flex:1;min-width:240px;font:inherit;padding:12px 16px;min-height:50px;
+    border:1px solid var(--line);border-radius:10px;background:var(--card);
+  }
+  .grades{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .pill{
+    font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);
+    border-radius:999px;padding:8px 18px;min-height:44px;color:var(--sub);
+  }
+  .pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+
+  /* ---- subject grid ---- */
+  .subjects{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  }
+  .subject{
+    font:inherit;cursor:pointer;border:2px solid transparent;
+    border-radius:var(--radius);padding:20px 14px;text-align:center;
+    font-size:22px;font-weight:700;min-height:96px;
+    display:flex;flex-direction:column;justify-content:center;gap:4px;
+  }
+  .subject:hover{filter:brightness(.96);}
+  .subject .count{font-size:14px;font-weight:400;opacity:.75;}
+  .subject.empty{opacity:.45;}
+
+  /* ---- list ---- */
+  .listhead{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .listhead h2{margin:0;font-size:24px;}
+  .item{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;margin-bottom:10px;
+    display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  }
+  .item .body{flex:1;min-width:220px;}
+  .item .name{font-size:21px;font-weight:700;line-height:1.35;}
+  .item .memo{color:var(--sub);font-size:16px;margin-top:2px;}
+  .item .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .tag{font-size:13px;background:#eef1f5;color:var(--sub);border-radius:6px;padding:2px 8px;}
+  .item .actions{display:flex;gap:8px;align-items:center;}
+  .btn-qr{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+    font-size:20px;font-weight:700;padding:12px 24px;min-height:56px;
+  }
+  .btn-qr:hover{background:#0d4d94;}
+  .empty-msg{color:var(--sub);padding:32px 8px;text-align:center;}
+
+  /* ---- fullscreen QR ---- */
+  #qrView{
+    position:fixed;inset:0;background:#fff;z-index:50;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;gap:16px;
+  }
+  #qrView.open{display:flex;}
+  #qrTitle{font-size:clamp(24px,4.5vw,52px);font-weight:700;text-align:center;line-height:1.3;}
+  #qrBox{width:min(74vh,74vw);height:min(74vh,74vw);}
+  #qrBox svg{width:100%;height:100%;display:block;}
+  #qrUrl{
+    font-size:14px;color:var(--sub);word-break:break-all;text-align:center;
+    max-width:900px;
+  }
+  #qrClose{position:absolute;top:18px;right:18px;font-size:18px;}
+
+  /* ---- modal ---- */
+  .backdrop{
+    position:fixed;inset:0;background:rgba(20,24,30,.5);z-index:60;
+    display:none;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;
+  }
+  .backdrop.open{display:flex;}
+  .modal{
+    background:var(--card);border-radius:var(--radius);width:min(640px,100%);
+    padding:24px;box-shadow:0 12px 40px rgba(0,0,0,.2);
+  }
+  .modal h3{margin:0 0 16px;font-size:22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-weight:700;font-size:16px;margin-bottom:6px;}
+  .field .req{color:var(--danger);font-size:14px;margin-left:4px;}
+  .field input[type=text],.field input[type=password],.field textarea,.field select{
+    width:100%;font:inherit;padding:11px 13px;border:1px solid var(--line);
+    border-radius:10px;background:#fff;min-height:48px;
+  }
+  .field textarea{min-height:72px;resize:vertical;}
+  .checks{display:flex;gap:8px;flex-wrap:wrap;}
+  .checks label{
+    display:inline-flex;align-items:center;gap:6px;font-weight:400;
+    border:1px solid var(--line);border-radius:999px;padding:8px 14px;
+    cursor:pointer;background:#fff;margin:0;min-height:44px;
+  }
+  .checks input{width:18px;height:18px;}
+  .row{display:flex;gap:10px;align-items:flex-end;}
+  .row .field{flex:1;margin-bottom:0;}
+  .hint{font-size:14px;color:var(--sub);margin-top:6px;}
+  .hint.warn{color:var(--warn);background:var(--warn-bg);padding:8px 10px;border-radius:8px;}
+  .hint.err{color:var(--danger);}
+  .modal-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .modal-actions .spacer{flex:1;}
+
+  /* ---- misc ---- */
+  #status{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    background:#1b1f24;color:#fff;padding:12px 22px;border-radius:999px;
+    z-index:80;display:none;font-size:16px;max-width:90vw;text-align:center;
+  }
+  #status.open{display:block;}
+  #setup{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;
+  }
+  #setup h2{margin-top:0;}
+  #setup code{background:#eef1f5;padding:2px 6px;border-radius:5px;font-size:15px;}
+  .loading{color:var(--sub);padding:40px;text-align:center;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>学習リンク集</h1>
+    <div class="spacer"></div>
+    <button class="btn" id="btnReload" title="最新の状態に読み直します">再読込</button>
+    <button class="btn btn-primary" id="btnAdd">＋ 追加</button>
+  </header>
+
+  <div id="app">
+    <div class="loading" id="loading">読み込んでいます…</div>
+
+    <div id="main" hidden>
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="サイト名・メモから検索（例：わり算、地図、動画）">
+      </div>
+
+      <div class="grades" id="grades"></div>
+
+      <div id="homeView">
+        <div class="subjects" id="subjects"></div>
+      </div>
+
+      <div id="listView" hidden>
+        <div class="listhead">
+          <button class="btn" id="btnBack">← 教科をえらぶ</button>
+          <h2 id="listTitle"></h2>
+        </div>
+        <div id="items"></div>
+      </div>
+    </div>
+
+    <div id="setup" hidden>
+      <h2>はじめの設定</h2>
+      <p>このリンク集は、データの保管に Google スプレッドシート＋GAS を使います。
+         まだ接続先が設定されていません。</p>
+      <p><code>README.md</code> の手順で GAS を配置し、発行された
+         ウェブアプリ URL（<code>https://script.google.com/macros/s/……/exec</code>）を
+         下に貼って「接続」を押してください。この端末に記憶されます。</p>
+      <div class="field">
+        <label for="setupUrl">ウェブアプリ URL</label>
+        <input type="text" id="setupUrl" placeholder="https://script.google.com/macros/s/…/exec">
+      </div>
+      <button class="btn btn-primary" id="btnSetup">接続する</button>
+      <p class="hint" id="setupErr"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 全画面QR -->
+<div id="qrView">
+  <button class="btn" id="qrClose">閉じる（Esc）</button>
+  <div id="qrTitle"></div>
+  <div id="qrBox"></div>
+  <div id="qrUrl"></div>
+</div>
+
+<!-- 追加・編集 -->
+<div class="backdrop" id="editBackdrop">
+  <div class="modal">
+    <h3 id="editTitle">リンクを追加</h3>
+
+    <div class="field">
+      <label for="fUrl">URL<span class="req">必須</span></label>
+      <div class="row">
+        <div class="field"><input type="text" id="fUrl" placeholder="https://…"></div>
+        <button class="btn btn-sm" id="btnFetchTitle" title="URL からサイト名を取り込みます">名前を取得</button>
+      </div>
+      <div class="hint" id="urlHint"></div>
+    </div>
+
+    <div class="field">
+      <label for="fName">サイト名<span class="req">必須</span></label>
+      <input type="text" id="fName" placeholder="例：NHK for School　わり算">
+    </div>
+
+    <div class="field">
+      <label for="fSubject">教科<span class="req">必須</span></label>
+      <select id="fSubject"></select>
+    </div>
+
+    <div class="field">
+      <label>学年<span class="req">必須</span></label>
+      <div class="checks" id="fGrades"></div>
+      <div class="hint"><button class="btn btn-sm" id="btnAllGrades" type="button">全学年にする</button></div>
+    </div>
+
+    <div class="field">
+      <label for="fMemo">ひとことメモ</label>
+      <textarea id="fMemo" placeholder="例：3年のあまりのあるわり算の導入で使える動画（3分）"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="fBy">追加した人（任意・画面には出ません）</label>
+      <input type="text" id="fBy" placeholder="例：3年 田中">
+    </div>
+
+    <div class="field">
+      <label for="fPw">合い言葉<span class="req">必須</span></label>
+      <input type="password" id="fPw" placeholder="職員共通の合い言葉">
+      <div class="hint">この画面を開いている間は覚えています。</div>
+    </div>
+
+    <div class="hint err" id="editErr"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDelete" hidden>削除する</button>
+      <div class="spacer"></div>
+      <button class="btn" id="btnCancel">キャンセル</button>
+      <button class="btn btn-primary" id="btnSave">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div id="status"></div>
+
+<script src="qrcode.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     接続先（自校用）。フォークして使う場合はここを書き換えます。
+     ?api=... を URL に付けると一時的に上書きでき、端末に記憶されます。
+     ============================================================ */
+  var DEFAULT_API_URL = "";
+
+  var LS_API = "linkqr.apiUrl";
+  var API = "";
+
+  var state = {
+    subjects: [],
+    links: [],
+    grade: 0,        // 0 = 全学年（絞り込みなし）
+    subject: null,   // null = 教科えらび画面
+    query: "",
+    editing: null    // 編集中のリンク（null なら新規追加）
+  };
+
+  var SUBJECT_COLORS = [
+    "#ffe0e0","#ffedd5","#fff4c2","#e6f5d9","#d9f2ec",
+    "#dcecfb","#e3e2fb","#f3ddf5","#ffe4ef","#e9e9e9"
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- 接続先の解決 ---------- */
+  function resolveApi(){
+    var q = new URLSearchParams(location.search).get("api");
+    if (q) { try{ localStorage.setItem(LS_API, q); }catch(e){} return q; }
+    if (DEFAULT_API_URL) return DEFAULT_API_URL;
+    try { return localStorage.getItem(LS_API) || ""; } catch(e){ return ""; }
+  }
+
+  /* ---------- 通信 ---------- */
+  function apiList(){
+    return fetch(API + (API.indexOf("?") >= 0 ? "&" : "?") + "action=list")
+      .then(function(r){ return r.json(); });
+  }
+  function apiPost(payload){
+    return fetch(API, {
+      method: "POST",
+      // application/json にすると preflight が飛び、GAS が応答できないため text/plain で送る
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function(r){ return r.json(); });
+  }
+
+  /* ---------- 小物 ---------- */
+  function toast(msg, ms){
+    var el = $("status");
+    el.textContent = msg;
+    el.classList.add("open");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ el.classList.remove("open"); }, ms || 2600);
+  }
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+  function gradeLabel(list){
+    if (!list || !list.length) return "";
+    if (list.length >= 6) return "全学年";
+    return list.map(function(g){ return g + "年"; }).join("・");
+  }
+  function subjectColor(name){
+    var h = 0, i;
+    for (i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return SUBJECT_COLORS[h % SUBJECT_COLORS.length];
+  }
+
+  /* ---------- 絞り込み ---------- */
+  function matches(link){
+    if (state.grade && link.grades.indexOf(state.grade) < 0) return false;
+    if (state.query){
+      var hay = (link.name + " " + link.memo + " " + link.subject).toLowerCase();
+      var terms = state.query.toLowerCase().split(/\s+/).filter(Boolean);
+      for (var i = 0; i < terms.length; i++){
+        if (hay.indexOf(terms[i]) < 0) return false;
+      }
+    }
+    return true;
+  }
+
+  /* ---------- 描画 ---------- */
+  function renderGrades(){
+    var box = $("grades");
+    var opts = [[0,"全学年"],[1,"1年"],[2,"2年"],[3,"3年"],[4,"4年"],[5,"5年"],[6,"6年"]];
+    box.innerHTML = "";
+    opts.forEach(function(o){
+      var b = document.createElement("button");
+      b.className = "pill";
+      b.textContent = o[1];
+      b.setAttribute("aria-pressed", state.grade === o[0] ? "true" : "false");
+      b.addEventListener("click", function(){ state.grade = o[0]; render(); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderSubjects(){
+    var box = $("subjects");
+    box.innerHTML = "";
+    state.subjects.forEach(function(name){
+      var n = state.links.filter(function(l){ return l.subject === name && matches(l); }).length;
+      var b = document.createElement("button");
+      b.className = "subject" + (n === 0 ? " empty" : "");
+      b.style.background = subjectColor(name);
+      b.innerHTML = esc(name) + '<span class="count">' + n + " 件</span>";
+      b.addEventListener("click", function(){ state.subject = name; render(); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderItems(list){
+    var box = $("items");
+    box.innerHTML = "";
+    if (!list.length){
+      box.innerHTML = '<div class="empty-msg">あてはまるリンクがありません。</div>';
+      return;
+    }
+    list.forEach(function(l){
+      var el = document.createElement("div");
+      el.className = "item";
+
+      var body = document.createElement("div");
+      body.className = "body";
+      var meta = '<span class="tag">' + esc(l.subject) + "</span>";
+      var g = gradeLabel(l.grades);
+      if (g) meta += '<span class="tag">' + esc(g) + "</span>";
+      body.innerHTML =
+        '<div class="name">' + esc(l.name) + "</div>" +
+        (l.memo ? '<div class="memo">' + esc(l.memo) + "</div>" : "") +
+        '<div class="meta">' + meta + "</div>";
+
+      var actions = document.createElement("div");
+      actions.className = "actions";
+
+      var qr = document.createElement("button");
+      qr.className = "btn btn-qr";
+      qr.textContent = "QR";
+      qr.addEventListener("click", function(){ showQr(l); });
+
+      var open = document.createElement("button");
+      open.className = "btn btn-sm";
+      open.textContent = "開く";
+      open.addEventListener("click", function(){ window.open(l.url, "_blank", "noopener"); });
+
+      var edit = document.createElement("button");
+      edit.className = "btn btn-sm";
+      edit.textContent = "編集";
+      edit.addEventListener("click", function(){ openEdit(l); });
+
+      actions.appendChild(qr);
+      actions.appendChild(open);
+      actions.appendChild(edit);
+
+      el.appendChild(body);
+      el.appendChild(actions);
+      box.appendChild(el);
+    });
+  }
+
+  function render(){
+    renderGrades();
+    var searching = state.query.length > 0;
+    if (state.subject === null && !searching){
+      $("homeView").hidden = false;
+      $("listView").hidden = true;
+      renderSubjects();
+    } else {
+      $("homeView").hidden = true;
+      $("listView").hidden = false;
+      var list = state.links.filter(function(l){
+        return matches(l) && (searching ? true : l.subject === state.subject);
+      });
+      list.sort(function(a,b){
+        if (a.subject !== b.subject) return a.subject < b.subject ? -1 : 1;
+        return a.name < b.name ? -1 : 1;
+      });
+      $("listTitle").textContent = searching
+        ? '「' + state.query + '」の検索結果（' + list.length + " 件）"
+        : state.subject + "（" + list.length + " 件）";
+      $("btnBack").hidden = searching;
+      renderItems(list);
+    }
+  }
+
+  /* ---------- 全画面QR ---------- */
+  function showQr(link){
+    var qr = qrcode(0, "M");           // 0 = 型番自動、M = 標準の誤り訂正
+    qr.addData(link.url);
+    qr.make();
+    $("qrBox").innerHTML = qr.createSvgTag({ cellSize: 1, margin: 2, scalable: true });
+    $("qrTitle").textContent = link.name;
+    $("qrUrl").textContent = link.url;
+    $("qrView").classList.add("open");
+  }
+  function hideQr(){ $("qrView").classList.remove("open"); }
+
+  /* ---------- 追加・編集 ---------- */
+  function buildGradeChecks(selected){
+    var box = $("fGrades");
+    box.innerHTML = "";
+    for (var g = 1; g <= 6; g++){
+      var lab = document.createElement("label");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = String(g);
+      cb.checked = selected.indexOf(g) >= 0;
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(g + "年"));
+      box.appendChild(lab);
+    }
+  }
+  function readGradeChecks(){
+    return Array.prototype.slice
+      .call($("fGrades").querySelectorAll("input:checked"))
+      .map(function(cb){ return parseInt(cb.value, 10); });
+  }
+
+  function openEdit(link){
+    state.editing = link || null;
+    $("editTitle").textContent = link ? "リンクを編集" : "リンクを追加";
+    $("btnDelete").hidden = !link;
+    $("editErr").textContent = "";
+
+    var sel = $("fSubject");
+    sel.innerHTML = "";
+    state.subjects.forEach(function(name){
+      var o = document.createElement("option");
+      o.value = name; o.textContent = name;
+      sel.appendChild(o);
+    });
+
+    $("fUrl").value  = link ? link.url : "";
+    $("fName").value = link ? link.name : "";
+    $("fMemo").value = link ? link.memo : "";
+    $("fBy").value   = link ? link.addedBy : "";
+    sel.value = link ? link.subject : (state.subject || state.subjects[0] || "");
+    buildGradeChecks(link ? link.grades : (state.grade ? [state.grade] : []));
+    checkUrl();
+
+    $("editBackdrop").classList.add("open");
+    $(link ? "fName" : "fUrl").focus();
+  }
+  function closeEdit(){
+    $("editBackdrop").classList.remove("open");
+    state.editing = null;
+  }
+
+  function checkUrl(){
+    var u = $("fUrl").value.trim();
+    var hint = $("urlHint");
+    hint.className = "hint";
+    if (!u){ hint.textContent = ""; return true; }
+    if (!/^https?:\/\//i.test(u)){
+      hint.className = "hint err";
+      hint.textContent = "http:// または https:// で始まる URL を入れてください。";
+      return false;
+    }
+    if (u.length > 150){
+      hint.className = "hint warn";
+      hint.textContent = "URL が " + u.length + " 文字と長いため、QR の目が細かくなり、"
+        + "後ろの席の子は読み取れないおそれがあります。もっと短い URL がないか探してみてください。";
+    } else if (u.length > 80){
+      hint.className = "hint warn";
+      hint.textContent = "URL が " + u.length + " 文字とやや長めです。QR がやや細かくなります。";
+    } else {
+      hint.textContent = u.length + " 文字。QR は読み取りやすい大きさになります。";
+    }
+    return true;
+  }
+
+  function save(){
+    var url  = $("fUrl").value.trim();
+    var name = $("fName").value.trim();
+    var subject = $("fSubject").value;
+    var grades = readGradeChecks();
+    var pw = $("fPw").value;
+    var err = $("editErr");
+    err.textContent = "";
+
+    if (!url || !checkUrl()){ err.textContent = "URL を確かめてください。"; return; }
+    if (!name){ err.textContent = "サイト名を入れてください。"; return; }
+    if (!subject){ err.textContent = "教科をえらんでください。"; return; }
+    if (!grades.length){ err.textContent = "学年を1つ以上えらんでください。"; return; }
+    if (!pw){ err.textContent = "合い言葉を入れてください。"; return; }
+
+    var payload = {
+      action: state.editing ? "update" : "add",
+      pw: pw,
+      id: state.editing ? state.editing.id : "",
+      name: name, url: url, subject: subject, grades: grades,
+      memo: $("fMemo").value.trim(),
+      addedBy: $("fBy").value.trim()
+    };
+    $("btnSave").disabled = true;
+    apiPost(payload).then(function(res){
+      $("btnSave").disabled = false;
+      if (!res.ok){ err.textContent = res.error || "保存できませんでした。"; return; }
+      closeEdit();
+      toast(payload.action === "add" ? "追加しました。" : "更新しました。");
+      load();
+    }).catch(function(e){
+      $("btnSave").disabled = false;
+      err.textContent = "通信に失敗しました：" + e.message;
+    });
+  }
+
+  function removeLink(){
+    if (!state.editing) return;
+    var adminPw = window.prompt(
+      "「" + state.editing.name + "」を一覧から消します。\n管理者パスワードを入れてください。"
+    );
+    if (adminPw === null) return;
+    if (!adminPw) return;
+    var err = $("editErr");
+    apiPost({ action: "delete", adminPw: adminPw, id: state.editing.id }).then(function(res){
+      if (!res.ok){ err.textContent = res.error || "削除できませんでした。"; return; }
+      closeEdit();
+      toast("一覧から消しました。（スプレッドシートには残っています）", 3600);
+      load();
+    }).catch(function(e){
+      err.textContent = "通信に失敗しました：" + e.message;
+    });
+  }
+
+  function fetchTitle(){
+    var url = $("fUrl").value.trim();
+    var pw = $("fPw").value;
+    if (!url || !checkUrl()) return;
+    if (!pw){ $("editErr").textContent = "名前の取得にも合い言葉が必要です。"; $("fPw").focus(); return; }
+    var btn = $("btnFetchTitle");
+    btn.disabled = true; btn.textContent = "取得中…";
+    apiPost({ action: "title", pw: pw, url: url }).then(function(res){
+      btn.disabled = false; btn.textContent = "名前を取得";
+      if (res.ok && res.title){
+        $("fName").value = res.title;
+        $("editErr").textContent = "";
+      } else {
+        $("editErr").textContent = res.error || "このサイトからは名前を取得できませんでした。手で入れてください。";
+      }
+    }).catch(function(){
+      btn.disabled = false; btn.textContent = "名前を取得";
+      $("editErr").textContent = "名前を取得できませんでした。手で入れてください。";
+    });
+  }
+
+  /* ---------- 読み込み ---------- */
+  function load(){
+    return apiList().then(function(res){
+      if (!res.ok) throw new Error(res.error || "読み込みに失敗しました");
+      state.subjects = res.subjects || [];
+      state.links = (res.links || []).map(function(l){
+        l.grades = l.grades || [];
+        l.memo = l.memo || "";
+        l.addedBy = l.addedBy || "";
+        return l;
+      });
+      $("loading").hidden = true;
+      $("main").hidden = false;
+      render();
+    }).catch(function(e){
+      $("loading").innerHTML =
+        '読み込めませんでした。<br><span style="font-size:15px">' + esc(e.message) + "</span>";
+    });
+  }
+
+  /* ---------- 起動 ---------- */
+  function start(){
+    API = resolveApi();
+    if (!API){
+      $("loading").hidden = true;
+      $("setup").hidden = false;
+      return;
+    }
+    load();
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    $("btnAdd").addEventListener("click", function(){ openEdit(null); });
+    $("btnReload").addEventListener("click", function(){ toast("読み直しています…", 1200); load(); });
+    $("btnBack").addEventListener("click", function(){ state.subject = null; render(); });
+    $("btnCancel").addEventListener("click", closeEdit);
+    $("btnSave").addEventListener("click", save);
+    $("btnDelete").addEventListener("click", removeLink);
+    $("btnFetchTitle").addEventListener("click", fetchTitle);
+    $("fUrl").addEventListener("input", checkUrl);
+    $("btnAllGrades").addEventListener("click", function(){
+      Array.prototype.slice.call($("fGrades").querySelectorAll("input"))
+        .forEach(function(cb){ cb.checked = true; });
+    });
+    $("qrClose").addEventListener("click", hideQr);
+    $("qrView").addEventListener("click", function(e){
+      if (e.target.id === "qrView" || e.target.id === "qrBox") hideQr();
+    });
+    $("editBackdrop").addEventListener("click", function(e){
+      if (e.target.id === "editBackdrop") closeEdit();
+    });
+    document.addEventListener("keydown", function(e){
+      if (e.key !== "Escape") return;
+      if ($("qrView").classList.contains("open")) hideQr();
+      else if ($("editBackdrop").classList.contains("open")) closeEdit();
+    });
+    var t;
+    $("search").addEventListener("input", function(){
+      clearTimeout(t);
+      t = setTimeout(function(){
+        state.query = $("search").value.trim();
+        if (state.query) state.subject = null;
+        render();
+      }, 150);
+    });
+    $("btnSetup").addEventListener("click", function(){
+      var u = $("setupUrl").value.trim();
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)){
+        $("setupErr").className = "hint err";
+        $("setupErr").textContent = "GAS のウェブアプリ URL（/exec で終わるもの）を貼ってください。";
+        return;
+      }
+      try{ localStorage.setItem(LS_API, u); }catch(e){}
+      location.href = location.pathname;
+    });
+
+    start();
+  });
+})();
+</script>
+</body>
+</html>
